@@ -2,21 +2,14 @@ services:
   fin-exporter:
     build: .
     restart: unless-stopped
-    # Joins the Prometheus network so Prometheus scrapes fin-exporter:9102.
-    # No ports are published to the host. /metrics requires basic auth
-    # (web-config.yml) because it listens on a non-loopback address.
-    networks: [prometheus]
+    # Host networking: fin-exporter.yaml's listen address is the host's address
+    # (e.g. 0.0.0.0:9102 to let a Prometheus container or another host scrape it).
+    network_mode: host
     volumes:
       - ./fin-exporter.yaml:/etc/fin-exporter/fin-exporter.yaml:ro
-      - ./web-config.yml:/etc/fin-exporter/web-config.yml:ro
     read_only: true
     cap_drop: [ALL]
     # no-new-privileges is disabled: on this host (Docker 29.8.0) every
     # container fails with "exec ...: operation not permitted" when it is set.
     # Re-enable once the host issue is fixed.
     # security_opt: ["no-new-privileges:true"]
-
-networks:
-  prometheus:
-    external: true
-    name: prometheus-grafana_default
