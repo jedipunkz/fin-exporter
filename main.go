@@ -113,13 +113,8 @@ func loadConfig(path string) (*config, error) {
 	if cfg.Interval < time.Minute {
 		return nil, errors.New("interval must be >= 1m")
 	}
-	// Metrics have no auth unless web_config_file sets it, so only allow that on loopback.
-	host, _, err := net.SplitHostPort(cfg.Listen)
-	if err != nil {
+	if _, _, err := net.SplitHostPort(cfg.Listen); err != nil {
 		return nil, fmt.Errorf("listen: %w", err)
-	}
-	if ip := net.ParseIP(host); cfg.WebConfigFile == "" && (ip == nil || !ip.IsLoopback()) {
-		return nil, errors.New("web_config_file (basic auth / TLS) is required when listen is not a loopback address")
 	}
 	// Cboe symbols go into the URL path, so allow only plain tickers.
 	for _, s := range cfg.Stocks {
