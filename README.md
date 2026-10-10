@@ -30,7 +30,7 @@ cp fin-exporter.yaml.example fin-exporter.yaml
 ```
 
 ```yaml
-listen: 127.0.0.1:9101
+listen: 127.0.0.1:9102
 # web_config_file: web-config.yml
 interval: 5m
 
@@ -50,7 +50,7 @@ funds:
 
 | Key | Description |
 |---|---|
-| `listen` | Default `127.0.0.1:9101`. `web_config_file` is required for a non-loopback address |
+| `listen` | Default `127.0.0.1:9102`. `web_config_file` is required for a non-loopback address |
 | `web_config_file` | Basic auth / TLS settings. See [exporter-toolkit web configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) |
 | `interval` | Fetch interval. Default `5m`, minimum `1m` |
 | `stocks[].symbol` / `indices[].symbol` | Uppercase letters and digits only. No `^` for indices |
@@ -64,27 +64,27 @@ funds:
 ```bash
 go build -o fin-exporter .
 ./fin-exporter -config fin-exporter.yaml
-curl -s 127.0.0.1:9101/metrics | grep '^fin_'
+curl -s 127.0.0.1:9102/metrics | grep '^fin_'
 ```
 
 ### Docker Compose
 
 ```bash
 docker compose up -d --build
-curl -s 127.0.0.1:9101/metrics | grep '^fin_'
+curl -s 127.0.0.1:9102/metrics | grep '^fin_'
 ```
 
-The container runs with `network_mode: host` and listens on the host's `127.0.0.1:9101`. Scrape it from a Prometheus on the same host:
+The container runs with `network_mode: host` and listens on the host's `127.0.0.1:9102`. Scrape it from a Prometheus on the same host:
 
 ```yaml
 scrape_configs:
   - job_name: fin-exporter
     scrape_interval: 1m  # values change every interval (default 5m)
     static_configs:
-      - targets: ["localhost:9101"]
+      - targets: ["localhost:9102"]
 ```
 
-To scrape from another host or from a Prometheus container, set `listen: 0.0.0.0:9101` and `web_config_file` (basic auth / TLS).
+To scrape from another host or from a Prometheus container, set `listen: 0.0.0.0:9102` and `web_config_file` (basic auth / TLS).
 
 ## Test
 

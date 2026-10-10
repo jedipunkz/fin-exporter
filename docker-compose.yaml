@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     # fin-exporter listens on 127.0.0.1 only (/metrics has no auth). Host
     # networking makes that the host's loopback, so a Prometheus on the same
-    # host can scrape localhost:9101 while nothing else can.
+    # host can scrape localhost:9102 while nothing else can.
     network_mode: host
     volumes:
       - ./fin-exporter.yaml:/etc/fin-exporter/fin-exporter.yaml:ro
