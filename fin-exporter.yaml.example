@@ -1,5 +1,5 @@
 listen: 127.0.0.1:9102
-# Required when listen is not a loopback address (basic auth / TLS).
+# Optional basic auth / TLS. Without it /metrics has no auth.
 # https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md
 # web_config_file: web-config.yml
 interval: 5m

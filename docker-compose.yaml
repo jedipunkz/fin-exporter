@@ -2,12 +2,14 @@ services:
   fin-exporter:
     build: .
     restart: unless-stopped
-    # fin-exporter listens on 127.0.0.1 only (/metrics has no auth). Host
-    # networking makes that the host's loopback, so a Prometheus on the same
-    # host can scrape localhost:9102 while nothing else can.
+    # Host networking: fin-exporter.yaml's listen address is the host's address
+    # (e.g. 0.0.0.0:9102 to let a Prometheus container or another host scrape it).
     network_mode: host
     volumes:
       - ./fin-exporter.yaml:/etc/fin-exporter/fin-exporter.yaml:ro
     read_only: true
     cap_drop: [ALL]
-    security_opt: ["no-new-privileges:true"]
+    # no-new-privileges is disabled: on this host (Docker 29.8.0) every
+    # container fails with "exec ...: operation not permitted" when it is set.
+    # Re-enable once the host issue is fixed.
+    # security_opt: ["no-new-privileges:true"]

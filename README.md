@@ -50,8 +50,8 @@ funds:
 
 | Key | Description |
 |---|---|
-| `listen` | Default `127.0.0.1:9102`. `web_config_file` is required for a non-loopback address |
-| `web_config_file` | Basic auth / TLS settings. See [exporter-toolkit web configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) |
+| `listen` | Default `127.0.0.1:9102`. Use `0.0.0.0:9102` to accept scrapes from other hosts or containers |
+| `web_config_file` | Optional basic auth / TLS settings. See [exporter-toolkit web configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) |
 | `interval` | Fetch interval. Default `5m`, minimum `1m` |
 | `stocks[].symbol` / `indices[].symbol` | Uppercase letters and digits only. No `^` for indices |
 | `forex[].base` / `quote` | ISO 4217 currency code. Supported currencies: `https://api.frankfurter.dev/v1/currencies` |
@@ -84,7 +84,7 @@ scrape_configs:
       - targets: ["localhost:9102"]
 ```
 
-To scrape from another host or from a Prometheus container, set `listen: 0.0.0.0:9102` and `web_config_file` (basic auth / TLS).
+To scrape from another host or from a Prometheus container, set `listen: 0.0.0.0:9102`. `/metrics` has no auth unless `web_config_file` is set.
 
 ## Test
 
