@@ -1,0 +1,28 @@
+listen: 127.0.0.1:9101
+# 127.0.0.1 以外で listen する場合は必須（basic auth / TLS）
+# https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md
+# web_config_file: web-config.yml
+interval: 5m
+
+# 米国株 (Cboe 遅延クオート, 15 分遅延)
+stocks:
+  - symbol: SPCX
+  - symbol: AAPL
+
+# 為替 (Frankfurter, ECB 日次レート)
+forex:
+  - base: USD
+    quote: JPY
+  - base: EUR
+    quote: JPY
+
+# 投資信託 (投信総合検索ライブラリー)。isin と協会コードは同サイトのファンド詳細で確認できる
+funds:
+  - name: emaxis-slim-all-country
+    isin: JP90C000H1T1
+    code: "0331418A"
+
+# 指数 (Cboe 遅延クオート, 15 分遅延)。TNX は利回り x 10 (52.44 = 5.244%)
+indices:
+  - symbol: VIX
+  - symbol: TNX
