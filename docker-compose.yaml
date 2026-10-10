@@ -11,7 +11,10 @@ services:
       - ./web-config.yml:/etc/fin-exporter/web-config.yml:ro
     read_only: true
     cap_drop: [ALL]
-    security_opt: ["no-new-privileges:true"]
+    # no-new-privileges is disabled: on this host (Docker 29.8.0) every
+    # container fails with "exec ...: operation not permitted" when it is set.
+    # Re-enable once the host issue is fixed.
+    # security_opt: ["no-new-privileges:true"]
 
 networks:
   prometheus:
