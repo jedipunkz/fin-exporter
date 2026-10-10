@@ -106,7 +106,7 @@ func loadConfig(path string) (*config, error) {
 	if err != nil {
 		return nil, err
 	}
-	cfg := &config{Listen: "127.0.0.1:9101", Interval: 5 * time.Minute}
+	cfg := &config{Listen: "127.0.0.1:9102", Interval: 5 * time.Minute}
 	if err := yaml.Unmarshal(b, cfg); err != nil {
 		return nil, err
 	}
