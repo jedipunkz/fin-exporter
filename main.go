@@ -1,6 +1,7 @@
 // fin-exporter exposes US stock prices and indices such as VIX / TNX (Cboe
 // delayed quotes), FX rates (Frankfurter) and Japanese mutual fund NAVs
-// (投信総合検索ライブラリー) as Prometheus metrics. No API key is needed.
+// (Toushin Sogo Kensaku Library by The Investment Trusts Association, Japan)
+// as Prometheus metrics. No API key is needed.
 package main
 
 import (
@@ -41,7 +42,7 @@ type config struct {
 	Funds []struct {
 		Name string `yaml:"name"`
 		ISIN string `yaml:"isin"`
-		Code string `yaml:"code"` // 協会コード
+		Code string `yaml:"code"` // fund code assigned by The Investment Trusts Association, Japan
 	} `yaml:"funds"`
 	Indices []struct {
 		Symbol string `yaml:"symbol"` // Cboe index symbol without "^", e.g. VIX, TNX
@@ -251,9 +252,9 @@ func fundLatestNAV(isin, code string) (float64, error) {
 	return parseNAV(b)
 }
 
-// parseNAV returns 基準価額 of the last row. The CSV is Shift_JIS, but only the
-// header and date column contain non-ASCII and SJIS bytes never include ',', so
-// no decoding is needed for the numeric column.
+// parseNAV returns the NAV (column 2) of the last row. The CSV is Shift_JIS,
+// but only the header and date column contain non-ASCII and SJIS bytes never
+// include ',', so no decoding is needed for the numeric column.
 func parseNAV(b []byte) (float64, error) {
 	rows, err := csv.NewReader(bytes.NewReader(b)).ReadAll()
 	if err != nil {

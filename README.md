@@ -1,19 +1,19 @@
 # fin-exporter
 
-米国株・指数・為替・投資信託の価格を Prometheus メトリクスとして公開する exporter。API キー不要。
+Prometheus exporter for US stocks, indices, FX rates and Japanese mutual funds. No API key required.
 
-## データソース
+## Data sources
 
-| 種別 | 取得元 | 更新頻度 | 備考 |
+| Kind | Source | Update | Notes |
 |---|---|---|---|
-| 米国株 | Cboe delayed quotes | 15 分遅延 | 非公開 API（cboe.com の相場ページが使う JSON）。予告なく変わりうる |
-| 指数 (VIX, TNX 等) | Cboe delayed quotes | 15 分遅延 | 同上。TNX は利回り x 10（52.44 = 5.244%） |
-| 為替 | [Frankfurter](https://frankfurter.dev/) | 日次 (ECB 参照レート) | |
-| 投資信託 | [投信総合検索ライブラリー](https://toushin-lib.fwg.ne.jp/) | 日次 | 基準価額（1 万口あたり、円） |
+| US stocks | Cboe delayed quotes | 15 min delay | Undocumented API (the JSON behind cboe.com quote pages). May change without notice |
+| Indices (VIX, TNX, ...) | Cboe delayed quotes | 15 min delay | Same as above. TNX is yield x 10 (52.44 = 5.244%) |
+| FX | [Frankfurter](https://frankfurter.dev/) | Daily (ECB reference rates) | |
+| Japanese mutual funds | [Toushin Sogo Kensaku Library](https://toushin-lib.fwg.ne.jp/) | Daily | NAV per 10,000 units in JPY |
 
-## メトリクス
+## Metrics
 
-| 名前 | ラベル |
+| Name | Labels |
 |---|---|
 | `fin_stock_price_usd` | `symbol` |
 | `fin_index_value` | `symbol` |
@@ -21,11 +21,13 @@
 | `fin_fund_nav_jpy` | `name`, `isin` |
 | `fin_fetch_success` | `kind`, `id` |
 
-取得に失敗した場合は前回値を保持し、`fin_fetch_success` を 0 にする。一度も成功していない系列は出力しない。
+On a failed fetch the previous value is kept and `fin_fetch_success` is set to 0. A series is not exported until its first successful fetch.
 
-## 設定
+## Configuration
 
-`fin-exporter.yaml`:
+```bash
+cp fin-exporter.yaml.example fin-exporter.yaml
+```
 
 ```yaml
 listen: 127.0.0.1:9101
@@ -46,18 +48,18 @@ funds:
     code: "0331418A"
 ```
 
-| キー | 説明 |
+| Key | Description |
 |---|---|
-| `listen` | 既定 `127.0.0.1:9101`。loopback 以外を指定する場合は `web_config_file` が必須 |
-| `web_config_file` | basic auth / TLS 設定。形式は [exporter-toolkit web configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) |
-| `interval` | 取得間隔。既定 `5m`、最小 `1m` |
-| `stocks[].symbol` / `indices[].symbol` | 英大文字と数字のみ。指数は `^` を付けない |
-| `forex[].base` / `quote` | ISO 4217 通貨コード。対応通貨は `https://api.frankfurter.dev/v1/currencies` |
-| `funds[].isin` / `code` | ISIN と協会コード。投信総合検索ライブラリーのファンド詳細で確認できる。`name` はラベル用の任意の名前 |
+| `listen` | Default `127.0.0.1:9101`. `web_config_file` is required for a non-loopback address |
+| `web_config_file` | Basic auth / TLS settings. See [exporter-toolkit web configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) |
+| `interval` | Fetch interval. Default `5m`, minimum `1m` |
+| `stocks[].symbol` / `indices[].symbol` | Uppercase letters and digits only. No `^` for indices |
+| `forex[].base` / `quote` | ISO 4217 currency code. Supported currencies: `https://api.frankfurter.dev/v1/currencies` |
+| `funds[].isin` / `code` | ISIN and fund association code, shown on the fund detail page of the Toushin Sogo Kensaku Library. `name` is any label value |
 
-## 実行
+## Run
 
-### バイナリ
+### Binary
 
 ```bash
 go build -o fin-exporter .
@@ -72,19 +74,19 @@ docker compose up -d --build
 curl -s 127.0.0.1:9101/metrics | grep '^fin_'
 ```
 
-`network_mode: host` で起動し、ホストの `127.0.0.1:9101` で listen する。同じホストの Prometheus から次の設定で scrape する。
+The container runs with `network_mode: host` and listens on the host's `127.0.0.1:9101`. Scrape it from a Prometheus on the same host:
 
 ```yaml
 scrape_configs:
   - job_name: fin-exporter
-    scrape_interval: 1m  # 値の更新は interval (既定 5m) ごと
+    scrape_interval: 1m  # values change every interval (default 5m)
     static_configs:
       - targets: ["localhost:9101"]
 ```
 
-別ホストやコンテナ内の Prometheus から scrape する場合は、`listen: 0.0.0.0:9101` と `web_config_file`（basic auth / TLS）を設定する。
+To scrape from another host or from a Prometheus container, set `listen: 0.0.0.0:9101` and `web_config_file` (basic auth / TLS).
 
-## テスト
+## Test
 
 ```bash
 go test ./...

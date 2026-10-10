@@ -1,0 +1,29 @@
+listen: 127.0.0.1:9101
+# Required when listen is not a loopback address (basic auth / TLS).
+# https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md
+# web_config_file: web-config.yml
+interval: 5m
+
+# US stocks (Cboe delayed quotes, 15 min delay)
+stocks:
+  - symbol: SPCX
+  - symbol: AAPL
+
+# Indices (Cboe delayed quotes, 15 min delay). TNX is yield x 10 (52.44 = 5.244%).
+indices:
+  - symbol: VIX
+  - symbol: TNX
+
+# FX (Frankfurter, daily ECB reference rates)
+forex:
+  - base: USD
+    quote: JPY
+  - base: EUR
+    quote: JPY
+
+# Japanese mutual funds (Toushin Sogo Kensaku Library).
+# Find isin and code (fund association code) on the fund detail page of https://toushin-lib.fwg.ne.jp/
+funds:
+  - name: emaxis-slim-all-country
+    isin: JP90C000H1T1
+    code: "0331418A"
